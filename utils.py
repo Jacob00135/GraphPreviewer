@@ -31,9 +31,9 @@ def draw_graph(category):
     ssh = get_ssh_client()
     command = current_app.config['COMMAND_MAPPING'][category]
     stdin, stdout, stderr = ssh.exec_command(command)
-    exec_command_out = stdout.read().decode()
     print('=' * 80)
-    print(exec_command_out)
+    print(stderr.read().decode())
+    print(stdout.read().decode())
     print('=' * 80)
 
     # 获取图片路径
