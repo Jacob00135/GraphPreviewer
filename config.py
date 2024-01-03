@@ -1,6 +1,8 @@
 import os
 
 root_path = os.path.dirname(os.path.realpath(__file__))
+if not os.path.exists(os.path.join(root_path, 'static/images')):
+    os.mkdir(os.path.join(root_path, 'static/images'))
 
 
 class Config(object):
