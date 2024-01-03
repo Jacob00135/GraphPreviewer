@@ -36,24 +36,21 @@ def draw_graph(category):
     print(stdout.read().decode())
     print('=' * 80)
 
-    # 获取图片路径
+    # 获取图片名称
     remote_graph_path = current_app.config['REMOTE_SERVER_GRAPH_PATH']
     command = 'ls {}'.format(remote_graph_path)
     stdin, stdout, stderr = ssh.exec_command(command)
-    exec_command_out = stdout.read().decode()
-    image_filenames = []
-    image_fullpaths = []
-    for row in exec_command_out.split('\n'):
-        if row.startswith(category):
-            image_filenames.append(row)
-            image_fullpaths.append(os.path.join(remote_graph_path, row).replace('\\', '/'))
+    filenames = stdout.read().decode().split('\n')
+    image_filenames = list(filter(lambda fn: fn.startswith(category), filenames))
 
     # 获取文件
     sftp = ssh.open_sftp()
     try:
-        for filename, fullpath in zip(image_filenames, image_fullpaths):
-            local_path = os.path.join(root_path, 'static/images/{}'.format(filename)).replace('/', '\\')
-            sftp.get(fullpath, local_path)
+        for fn in image_filenames:
+            sftp.get(
+                os.path.join(remote_graph_path, fn).replace('\\', '/'),
+                os.path.join(root_path, 'static/images', fn).replace('/', '\\')
+            )
     except Exception as e:
         print('=' * 80)
         print(e)
@@ -61,17 +58,9 @@ def draw_graph(category):
     finally:
         sftp.close()
 
-    return image_filenames, image_fullpaths
+    return image_filenames
 
 
-def get_filenames(category):
+def get_image_filenames(category):
     graph_path = os.path.join(root_path, 'static/images')
-    remote_graph_path = current_app.config['REMOTE_SERVER_GRAPH_PATH']
-    image_filenames = []
-    image_fullpaths = []
-    for filename in os.listdir(graph_path):
-        if filename.startswith(category):
-            image_filenames.append(filename)
-            image_fullpaths.append(os.path.join(remote_graph_path, filename).replace('\\', '/'))
-
-    return image_filenames, image_fullpaths
+    return list(filter(lambda fn: fn.startswith(category), os.listdir(graph_path)))

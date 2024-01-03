@@ -35,8 +35,8 @@
     <!-- 图片列表 -->
     {% for fn in image_filenames %}
         <div class="image-box">
-            <img src="/static/images/{{ fn }}" title="{{ image_fullpaths[loop.index0] }}" />
-            <div class="caption">{{ image_fullpaths[loop.index0] }}</div>
+            <img src="/static/images/{{ fn }}" title="{{ config['REMOTE_SERVER_HOSTNAME'] }}:{{ config['REMOTE_SERVER_GRAPH_PATH'] }}/{{ fn }}" />
+            <div class="caption">{{ config['REMOTE_SERVER_HOSTNAME'] }}:{{ config['REMOTE_SERVER_GRAPH_PATH'] }}/{{ fn }}</div>
         </div>
     {% endfor %}
 
