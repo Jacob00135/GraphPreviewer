@@ -15,7 +15,7 @@ class Config(object):
     REMOTE_SERVER_GRAPH_PATH = os.environ.get('REMOTE_SERVER_GRAPH_PATH')
 
     COMMAND_MAPPING = {
-        'full': 'python /home/xjy/python_code/EvaluationExperiment_test/draw_graph.py',
+        'full': '',
         'magnify': '',
         'subplot': ''
     }

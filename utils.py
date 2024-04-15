@@ -64,3 +64,13 @@ def draw_graph(category):
 def get_image_filenames(category):
     graph_path = os.path.join(root_path, 'static/images')
     return list(filter(lambda fn: fn.startswith(category), os.listdir(graph_path)))
+
+
+def remove_all_image(category):
+    graph_path = os.path.join(root_path, 'static/images')
+    for fn in os.listdir(graph_path):
+        fp = os.path.join(graph_path, fn)
+        try:
+            os.remove(fp)
+        except Exception as e:
+            pass
