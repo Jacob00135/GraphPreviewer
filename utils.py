@@ -1,0 +1,66 @@
+import os
+import paramiko
+from flask import current_app, g
+from config import root_path
+
+
+def get_ssh_client():
+    if 'ssh' in g:
+        return g.ssh
+
+    g.ssh = paramiko.SSHClient()
+    g.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    g.ssh.connect(
+        hostname=current_app.config['REMOTE_SERVER_HOSTNAME'],
+        port=current_app.config['REMOTE_SERVER_SSH_PORT'],
+        username=current_app.config['REMOTE_SERVER_USERNAME'],
+        password=current_app.config['REMOTE_SERVER_PASSWORD']
+    )
+
+    return g.ssh
+
+
+def close_ssh_connection(e=None):
+    if 'ssh' in g:
+        ssh = g.pop('ssh')
+        ssh.close()
+
+
+def draw_graph(category):
+    # 执行命令并获取输出
+    ssh = get_ssh_client()
+    command = current_app.config['COMMAND_MAPPING'][category]
+    stdin, stdout, stderr = ssh.exec_command(command)
+    print('=' * 80)
+    print(stderr.read().decode())
+    print(stdout.read().decode())
+    print('=' * 80)
+
+    # 获取图片名称
+    remote_graph_path = current_app.config['REMOTE_SERVER_GRAPH_PATH']
+    command = 'ls {}'.format(remote_graph_path)
+    stdin, stdout, stderr = ssh.exec_command(command)
+    filenames = stdout.read().decode().split('\n')
+    image_filenames = list(filter(lambda fn: fn.startswith(category), filenames))
+
+    # 获取文件
+    sftp = ssh.open_sftp()
+    try:
+        for fn in image_filenames:
+            sftp.get(
+                os.path.join(remote_graph_path, fn).replace('\\', '/'),
+                os.path.join(root_path, 'static/images', fn).replace('/', '\\')
+            )
+    except Exception as e:
+        print('=' * 80)
+        print(e)
+        print('=' * 80)
+    finally:
+        sftp.close()
+
+    return image_filenames
+
+
+def get_image_filenames(category):
+    graph_path = os.path.join(root_path, 'static/images')
+    return list(filter(lambda fn: fn.startswith(category), os.listdir(graph_path)))
