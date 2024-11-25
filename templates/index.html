@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <title>图片预览器</title>
+
+    <link rel="stylesheet" href="/static/css/index.css"/>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <div class="nav">
+        <div class="nav-center">
+            <div class="left">
+                <a id="only-preview" href="{{ url_for('index') }}">仅预览</a>
+            </div>
+            <div class="right">
+                <a id="setting" href="javascript:;">设置</a>
+                <a id="repaint" href="{{ url_for('index', repaint=1) }}">重绘</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 遮罩层，用于调整亮度 -->
+    <div class="shade"></div>
+
+    <!-- 调整亮度的控件 -->
+    <input id="adjust-light" type="range" min="0" max="100" value="0" />
+
+    <!-- 图片列表 -->
+    {% for fn in image_filenames %}
+        <div class="image-box">
+            <img src="/static/images/{{ fn }}" title="{{ config['REMOTE_SERVER_HOSTNAME'] }}:{{ config['REMOTE_SERVER_GRAPH_PATH'] }}/{{ fn }}" />
+            <div class="caption">{{ config['REMOTE_SERVER_HOSTNAME'] }}:{{ config['REMOTE_SERVER_GRAPH_PATH'] }}/{{ fn }}</div>
+        </div>
+    {% endfor %}
+
+    <!-- 报错文本列表 -->
+    {% if execute_error != '' %}
+        <textarea id="execute-error">{{ execute_error }}</textarea>
+    {% endif %}
+
+    <script src="/static/js/index.js"></script>
+</body>
+</html>
